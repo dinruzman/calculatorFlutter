@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
 
 void main() {
   runApp(const Calculator());
@@ -37,13 +38,44 @@ class _SimpleCalculatorState extends State<SimpleCalculator>{
   buttonPressed(String buttonText){
     setState(() {
       if(buttonText == "C"){
+        equation = "0";
+        result = "0";
+        equationFontSize = 38.0;
+        resultFontSize = 48.0;
 
       }else if(buttonText == "DEL"){
+        equation = equation.substring(0,equation.length - 1);
+        if(equation == ""){
+          equation = "0";
+        }
+        equationFontSize = 48.0;
+        resultFontSize = 38.0;
+        
+      }else if(buttonText == "="){
+        expression = equation;
 
-      }else if(buttonText == "/"){
+        try{
+          Parser p = Parser();
+          Expression exp = p.parse(expression);
+          ContextModel cm = ContextModel();
+          result = '${exp.evaluate(EvaluationType.REAL,cm)}';
+
+        }catch(e){
+          result = "Error";
+        }
+
+        equationFontSize = 38.0;
+        resultFontSize = 48.0;
         
       }else{
-        equation = equation + buttonText;
+        if(equation == "0"){
+          equation = buttonText;
+        }else{
+          equation = equation + buttonText;
+        } 
+
+        equationFontSize = 48.0;
+        resultFontSize = 38.0;
       }
     });
   }
@@ -53,7 +85,7 @@ class _SimpleCalculatorState extends State<SimpleCalculator>{
         height: MediaQuery.of(context).size.height * 0.1 * buttonHeight,
         color: buttonColor,
         child: ElevatedButton(
-          onPressed: buttonPressed(buttonText),
+          onPressed: () => buttonPressed(buttonText),
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
             shape: RoundedRectangleBorder(
@@ -82,7 +114,7 @@ class _SimpleCalculatorState extends State<SimpleCalculator>{
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: Text('Simple Calculator')),
+      appBar: AppBar(title: const Text('Simple Calculator')),
       body: Column(
         children: [
           Container(
